@@ -8,5 +8,4 @@ type UserRepository interface {
 }
 
 type UserService interface {
-	Register(user *domain.User) (*domain.User, error)
 }

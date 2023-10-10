@@ -1,7 +1,7 @@
 package port
 
 type TokenProvider interface {
-	CreateToken(email string) (string, error)
+	Create(email string) (string, error)
 }
 
 type AuthService interface {

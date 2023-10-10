@@ -29,7 +29,7 @@ func (as *AuthService) Login(email, password string) (string, error) {
 		return "", port.ErrInvalidCredentials
 	}
 
-	t, err := as.tp.CreateToken(email)
+	t, err := as.tp.Create(email)
 	if err != nil {
 		return "", err
 	}
@@ -37,18 +37,12 @@ func (as *AuthService) Login(email, password string) (string, error) {
 }
 
 func (as *AuthService) Register(name, email, password string) (string, error) {
-	hashedPassword, err := utils.HashPassword(password)
+	user, err := domain.NewUser(name, email, password)
 	if err != nil {
 		return "", err
 	}
 
-	user := domain.User{
-		Name:     name,
-		Email:    email,
-		Password: hashedPassword,
-	}
-
-	_, err = as.repo.CreateUser(&user)
+	_, err = as.repo.CreateUser(user)
 	if err != nil {
 		if port.IsUniqueConstraintViolationError(err) {
 			return "", port.ErrConflictingData
@@ -56,7 +50,7 @@ func (as *AuthService) Register(name, email, password string) (string, error) {
 		return "", err
 	}
 
-	t, err := as.tp.CreateToken(user.Email)
+	t, err := as.tp.Create(user.Email)
 	if err != nil {
 		return "", err
 	}

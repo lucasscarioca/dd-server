@@ -26,11 +26,13 @@ func init() {
 	slog.SetDefault(logger)
 }
 
+const TOKEN_DURATION = 72
+
 func main() {
 	appName := os.Getenv("APP_NAME")
 	env := os.Getenv("APP_ENV")
 	dbConn := os.Getenv("DB_CONNECTION")
-	tokenSecret := os.Getenv("SECRET")
+	tokenKey := os.Getenv("TOKEN_KEY")
 	listenAddr := ":" + os.Getenv("PORT")
 
 	slog.Info("Starting the application", "app", appName, "env", env)
@@ -47,7 +49,7 @@ func main() {
 
 	//TODO: Init Cache service
 
-	tokenProvider := token.NewTokenProvider(72, tokenSecret)
+	tokenProvider := token.NewTokenProvider(TOKEN_DURATION, tokenKey)
 
 	// Dependency injection
 	// User

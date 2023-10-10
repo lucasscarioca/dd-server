@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
 )
 
 type TokenProvider struct {
@@ -23,7 +25,7 @@ type claims struct {
 	jwt.RegisteredClaims
 }
 
-func (tp *TokenProvider) CreateToken(email string) (string, error) {
+func (tp *TokenProvider) Create(email string) (string, error) {
 	// Set custom claims
 	tokenClaims := &claims{
 		email,
@@ -42,4 +44,16 @@ func (tp *TokenProvider) CreateToken(email string) (string, error) {
 	}
 
 	return t, nil
+}
+
+func (tp *TokenProvider) Authenticate() echo.MiddlewareFunc {
+	// Configure middleware with the custom claims type
+	middlewareConfig := echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(claims)
+		},
+		SigningKey: tp.key,
+	}
+
+	return echojwt.WithConfig(middlewareConfig)
 }
