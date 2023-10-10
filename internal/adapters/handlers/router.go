@@ -19,10 +19,9 @@ func NewRouter(
 ) (*Router, error) {
 	e := echo.New()
 
-	e.Use(middleware.Logger())
+	e.Use(customLogger())
 	e.Use(middleware.Recover())
-
-	// CORS
+	e.Use(customCORS())
 
 	// Docs
 	// e.GET("/docs/*any", swaggerWrapper)
@@ -48,5 +47,3 @@ func NewRouter(
 func (r *Router) Serve(listenAddr string) {
 	r.Logger.Fatal(r.Start(listenAddr))
 }
-
-//TODO: Custom Logger
