@@ -6,8 +6,6 @@ import (
 )
 
 func Routes(e *echo.Echo) {
-	e.POST("/login", login)
-	// e.POST("/register", register)
 	e.POST("/forgot", forgot)
 	e.PUT("/reset/:token", reset)
 	e.GET("/verify/:token", verify)
