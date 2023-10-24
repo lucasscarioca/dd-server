@@ -14,19 +14,16 @@ func NewUserRepository(db *DB) *UserRepository {
 
 func (ur *UserRepository) CreateUser(user *domain.User) (*domain.User, error) {
 	query := `INSERT INTO users
-	(id, name, avatar, email, password, entries, created_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7)
+	(name, avatar, email, password)
+	VALUES ($1, $2, $3, $4)
 	RETURNING id, name, avatar, email, created_at;`
 
 	row := ur.db.QueryRow(
 		query,
-		user.ID,
 		user.Name,
 		user.Avatar,
 		user.Email,
 		user.Password,
-		user.Entries,
-		user.CreatedAt,
 	)
 
 	var createdUser domain.User
@@ -43,7 +40,7 @@ func (ur *UserRepository) GetUserByEmail(email string) (*domain.User, error) {
 	row := ur.db.QueryRow(query, email)
 
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Avatar, &user.Entries, &user.CreatedAt)
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Avatar, &user.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

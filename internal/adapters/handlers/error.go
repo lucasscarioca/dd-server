@@ -8,7 +8,8 @@ import (
 )
 
 var errorStatusMap = map[error]int{
-	port.ErrConflictingData: http.StatusConflict,
+	port.ErrConflictingData:    http.StatusConflict,
+	port.ErrInvalidCredentials: http.StatusBadRequest,
 }
 
 type errorResponse struct {
