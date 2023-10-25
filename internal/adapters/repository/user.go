@@ -40,7 +40,7 @@ func (ur *UserRepository) GetUserByEmail(email string) (*domain.User, error) {
 	row := ur.db.QueryRow(query, email)
 
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Avatar, &user.CreatedAt)
+	err := row.Scan(&user.ID, &user.Name, &user.Avatar, &user.Email, &user.Password, &user.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
