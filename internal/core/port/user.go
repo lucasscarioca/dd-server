@@ -13,4 +13,7 @@ type UserRepository interface {
 
 type UserService interface {
 	List(skip, limit uint64) ([]domain.User, error)
+	Find(id uint64) (*domain.User, error)
+	Update(user *domain.User) (*domain.User, error)
+	Delete(id uint64) error
 }

@@ -33,3 +33,7 @@ func handleError(c echo.Context, err error) error {
 	errResp := newErrorResponse(err.Error())
 	return c.JSON(statusCode, errResp)
 }
+
+func validationError(c echo.Context, err error) error {
+	return c.JSON(http.StatusBadRequest, newErrorResponse(err.Error()))
+}
