@@ -7,4 +7,6 @@ type TokenProvider interface {
 type AuthService interface {
 	Login(email, password string) (string, error)
 	Register(name, email, password string) (string, error)
+	Forgot(email string) error
+	Reset(password, token string) error
 }

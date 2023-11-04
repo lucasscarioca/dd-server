@@ -27,3 +27,12 @@ migrate_down:
 
 migrate_fix:
 	migrate -path internal/adapters/repository/migrations/ -database ${DB_URL} force $(version)
+
+prod_migrate_up:
+	migrate -path internal/adapters/repository/migrations/ -database ${RDS_DB_URL} -verbose up
+
+prod_migrate_down:
+	migrate -path internal/adapters/repository/migrations/ -database ${RDS_DB_URL} -verbose down
+	
+prod_migrate_fix:
+	migrate -path internal/adapters/repository/migrations/ -database ${RDS_DB_URL} force $(version)

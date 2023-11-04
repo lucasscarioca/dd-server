@@ -62,7 +62,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService)
 
 	router, err := handlers.NewRouter(
-		tokenProvider,
+		tokenProvider.Authenticate,
 		*userHandler,
 		*authHandler,
 	)
@@ -72,5 +72,9 @@ func main() {
 
 	// Start server
 	slog.Info("Starting HTTP server", "listen_address", listenAddr)
-	router.Serve(listenAddr)
+	if env == "PROD" {
+		router.ServeLambda()
+	} else {
+		router.Serve(listenAddr)
+	}
 }

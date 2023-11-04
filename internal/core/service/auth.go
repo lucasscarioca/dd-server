@@ -57,3 +57,24 @@ func (as *AuthService) Register(name, email, password string) (string, error) {
 
 	return t, nil
 }
+
+func (as *AuthService) Forgot(email string) error {
+	// Find User by email
+
+	// Create token
+
+	// Update User with reset_token
+
+	// Send email
+	return nil
+}
+
+func (as *AuthService) Reset(password, token string) error {
+	// Find User by reset_token
+
+	// Hash new password
+
+	// Update User and clear reset_token
+
+	return nil
+}

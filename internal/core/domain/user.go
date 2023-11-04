@@ -7,12 +7,14 @@ import (
 )
 
 type User struct {
-	ID        uint64    `json:"id"`
-	Name      string    `json:"name"`
-	Avatar    string    `json:"avatar"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID         uint64    `json:"id"`
+	Name       string    `json:"name"`
+	Avatar     string    `json:"avatar"`
+	Email      string    `json:"email"`
+	Password   string    `json:"password"`
+	Configs    any       `json:"configs"` //TODO: type configs according to app
+	ResetToken string    `json:"resetToken"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 func NewUser(name, email, password string) (*User, error) {

@@ -2,13 +2,12 @@ package domain
 
 import "time"
 
-type Entry struct {
+type Dino struct {
 	ID        uint64    `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	UserID    uint64    `json:"userId"`
-	Status    string    `json:"status"`
+	Name      string    `json:"name"`
+	Avatar    string    `json:"avatar"`
 	Configs   any       `json:"configs"` //TODO: type configs according to app
+	UserID    uint64    `json:"userId"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

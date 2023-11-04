@@ -3,9 +3,10 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/lucasscarioca/dinodiary/internal/core/port"
+	"github.com/lucasscarioca/dinodiary/pkg/echolambda"
 )
 
 type Router struct {
@@ -13,7 +14,7 @@ type Router struct {
 }
 
 func NewRouter(
-	token port.TokenProvider,
+	authMiddleware func() echo.MiddlewareFunc,
 	userHandler UserHandler,
 	authHandler AuthHandler,
 ) (*Router, error) {
@@ -36,6 +37,12 @@ func NewRouter(
 		{
 			auth.POST("/", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
+			auth.POST("/forgot", authHandler.Forgot)
+			auth.PUT("/reset/:token", authHandler.Reset)
+		}
+		user := v1.Group("/users", authMiddleware())
+		{
+			user.GET("/", userHandler.List)
 		}
 	}
 
@@ -46,4 +53,9 @@ func NewRouter(
 
 func (r *Router) Serve(listenAddr string) {
 	r.Logger.Fatal(r.Start(listenAddr))
+}
+
+func (r *Router) ServeLambda() {
+	lambdaAdapter := &echolambda.LambdaAdapter{Echo: r.Echo}
+	lambda.Start(lambdaAdapter.Handler)
 }

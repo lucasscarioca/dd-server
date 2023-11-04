@@ -65,3 +65,42 @@ func (ah *AuthHandler) Register(c echo.Context) error {
 		"token": t,
 	})
 }
+
+type forgotRequest struct {
+	Email string `json:"email"`
+}
+
+func (ah *AuthHandler) Forgot(c echo.Context) error {
+	req := new(forgotRequest)
+
+	if err := json.NewDecoder(c.Request().Body).Decode(req); err != nil {
+		return err
+	}
+
+	err := ah.svc.Forgot(req.Email)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+type resetRequest struct {
+	Password string `json:"password"`
+}
+
+func (ah *AuthHandler) Reset(c echo.Context) error {
+	token := c.Param("token")
+	req := new(resetRequest)
+
+	if err := json.NewDecoder(c.Request().Body).Decode(req); err != nil {
+		return err
+	}
+
+	err := ah.svc.Reset(req.Password, token)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}

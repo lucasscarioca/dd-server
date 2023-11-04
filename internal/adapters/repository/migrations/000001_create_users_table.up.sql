@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS users (
   "avatar" VARCHAR,
   "email" VARCHAR NOT NULL,
   "password" VARCHAR NOT NULL,
+  "configs" JSON,
+  "reset_token" VARCHAR,
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
