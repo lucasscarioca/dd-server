@@ -2,10 +2,10 @@ include .env
 export
 
 build:
-	@go build -o tmp/main.exe ./cmd/server/...
+	@go build -o tmp/main ./cmd/server/...
 
 start: build
-	@./tmp/main.exe
+	@./tmp/main
 
 run:
 	@go run ./cmd/server/...
