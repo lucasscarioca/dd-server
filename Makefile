@@ -2,7 +2,12 @@ include .env
 export
 
 build:
-	@go build -o tmp/main ./cmd/server/...
+	set GOARCH=amd64
+	set GOOS=linux
+	go build -o tmp/main ./cmd/server/...
+
+ps_build:
+	$$Env:GOOS = "linux"; $$Env:GOARCH = "amd64"; go build -o tmp/main ./cmd/server/...
 
 start: build
 	@./tmp/main
