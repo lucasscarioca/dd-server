@@ -16,6 +16,7 @@ type Router struct {
 func NewRouter(
 	authMiddleware func() echo.MiddlewareFunc,
 	userHandler UserHandler,
+	assistHandler AssistHandler,
 	authHandler AuthHandler,
 ) (*Router, error) {
 	e := echo.New()
@@ -43,6 +44,13 @@ func NewRouter(
 		user := v1.Group("/users", authMiddleware())
 		{
 			user.GET("/", userHandler.List)
+			user.GET("/:id", userHandler.Find)
+			user.PUT("/:id", userHandler.Update)
+			user.DELETE("/:id", userHandler.Delete)
+
+			user.POST("/:id/new", assistHandler.Create)
+			user.GET("/:id/assistants", assistHandler.ListAssistants)
+			user.GET("/:id/assisted", assistHandler.ListAssistedUsers)
 		}
 	}
 

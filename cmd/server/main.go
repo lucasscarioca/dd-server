@@ -61,9 +61,15 @@ func main() {
 	authService := service.NewAuthService(userRepo, tokenProvider)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	// Assist
+	assistRepo := repository.NewAssistRepository(db)
+	assistService := service.NewAssistService(assistRepo)
+	assistHandler := handlers.NewAssistHandler(assistService)
+
 	router, err := handlers.NewRouter(
 		tokenProvider.Authenticate,
 		*userHandler,
+		*assistHandler,
 		*authHandler,
 	)
 	if err != nil {

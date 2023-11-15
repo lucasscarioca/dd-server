@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/lucasscarioca/dinodiary/internal/core/domain"
+import (
+	"github.com/lucasscarioca/dinodiary/internal/core/domain"
+)
 
 type UserRepository struct {
 	db *DB
@@ -14,8 +16,8 @@ func NewUserRepository(db *DB) *UserRepository {
 
 func (ur *UserRepository) CreateUser(user *domain.User) (*domain.User, error) {
 	query := `INSERT INTO users
-	(name, avatar, email, password)
-	VALUES ($1, $2, $3, $4)
+	(name, avatar, email, password, reset_token)
+	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id, name, avatar, email, created_at;`
 
 	row := ur.db.QueryRow(
@@ -24,6 +26,7 @@ func (ur *UserRepository) CreateUser(user *domain.User) (*domain.User, error) {
 		user.Avatar,
 		user.Email,
 		user.Password,
+		user.ResetToken,
 	)
 
 	var createdUser domain.User
@@ -66,13 +69,12 @@ func (ur *UserRepository) GetUserByEmail(email string) (*domain.User, error) {
 	return &user, nil
 }
 
-func (ur *UserRepository) ListUsers(skip, limit uint64) ([]domain.User, error) {
-	var user domain.User
-	var users []domain.User
-	query := `SELECT users.id, users.name, users.avatar 
+func (ur *UserRepository) ListUsers(skip, limit uint64) ([]domain.PubUser, error) {
+	var user domain.PubUser
+	var users []domain.PubUser
+	query := `SELECT users.id, users.name, users.avatar, users.created_at 
 	FROM users 
 	OFFSET $1 LIMIT $2;`
-	//TODO: List only assisted users
 
 	rows, err := ur.db.Query(query, skip, limit)
 	if err != nil {
@@ -85,6 +87,7 @@ func (ur *UserRepository) ListUsers(skip, limit uint64) ([]domain.User, error) {
 			&user.ID,
 			&user.Name,
 			&user.Avatar,
+			&user.CreatedAt,
 		)
 		if err != nil {
 			return nil, err

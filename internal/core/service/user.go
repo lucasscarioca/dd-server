@@ -15,25 +15,29 @@ func NewUserService(repo port.UserRepository) *UserService {
 	}
 }
 
-func (us *UserService) List(skip, limit uint64) ([]domain.User, error) {
+func (us *UserService) List(skip, limit uint64) ([]domain.PubUser, error) {
+	if limit == 0 {
+		limit = 10
+	}
+
 	users, err := us.repo.ListUsers(skip, limit)
-	if err != nil {
+	if err != nil || users == nil {
 		return nil, port.ErrDataNotFound
 	}
 
 	return users, nil
 }
 
-func (us *UserService) Find(id uint64) (*domain.User, error) {
+func (us *UserService) Find(id uint64) (*domain.SafeUser, error) {
 	user, err := us.repo.GetUserById(id)
 	if err != nil {
 		return nil, port.ErrDataNotFound
 	}
 
-	return user, nil
+	return user.Safe(), nil
 }
 
-func (us *UserService) Update(user *domain.User) (*domain.User, error) {
+func (us *UserService) Update(user *domain.User) (*domain.SafeUser, error) {
 	existingUser, err := us.repo.GetUserById(user.ID)
 	if err != nil {
 		return nil, port.ErrDataNotFound
@@ -53,13 +57,18 @@ func (us *UserService) Update(user *domain.User) (*domain.User, error) {
 		return nil, err
 	}
 
-	return newUser, nil
+	return newUser.Safe(), nil
 }
 
 func (us *UserService) Delete(id uint64) error {
-	err := us.repo.DeleteUser(id)
+	_, err := us.repo.GetUserById(id)
 	if err != nil {
 		return port.ErrDataNotFound
+	}
+
+	err = us.repo.DeleteUser(id)
+	if err != nil {
+		return err
 	}
 
 	return nil

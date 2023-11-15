@@ -10,6 +10,10 @@ import (
 var errorStatusMap = map[error]int{
 	port.ErrConflictingData:    http.StatusConflict,
 	port.ErrInvalidCredentials: http.StatusBadRequest,
+	port.ErrDataNotFound:       http.StatusNotFound,
+	port.ErrNoUpdatedData:      http.StatusBadRequest,
+	port.ErrInvalidToken:       http.StatusUnauthorized,
+	port.ErrExpiredToken:       http.StatusUnauthorized,
 }
 
 type errorResponse struct {

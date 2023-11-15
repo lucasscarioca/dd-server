@@ -18,13 +18,13 @@ func NewUserHandler(svc port.UserService) *UserHandler {
 	}
 }
 
-type listRequest struct {
+type listUserRequest struct {
 	Skip  uint64 `query:"skip"`
 	Limit uint64 `query:"limit"`
 }
 
 func (uh *UserHandler) List(c echo.Context) error {
-	var options listRequest
+	var options listUserRequest
 	err := c.Bind(&options)
 	if err != nil {
 		return err
