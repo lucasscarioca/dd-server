@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
+	"github.com/lucasscarioca/dinodiary/internal/core/domain"
 )
 
 type TokenProvider struct {
@@ -20,19 +21,9 @@ func NewTokenProvider(hours time.Duration, key string) *TokenProvider {
 	}
 }
 
-type claims struct {
-	Email string `json:"email"`
-	jwt.RegisteredClaims
-}
-
-func (tp *TokenProvider) Create(email string) (string, error) {
+func (tp *TokenProvider) Create(id uint64, email string) (string, error) {
 	// Set custom claims
-	tokenClaims := &claims{
-		email,
-		jwt.RegisteredClaims{
-			ExpiresAt: &tp.expiration,
-		},
-	}
+	tokenClaims := domain.NewTokenClaims(id, email, tp.expiration)
 
 	// Create token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
@@ -50,10 +41,15 @@ func (tp *TokenProvider) Authenticate() echo.MiddlewareFunc {
 	// Configure middleware with the custom claims type
 	middlewareConfig := echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return new(claims)
+			return new(domain.Token)
 		},
 		SigningKey: tp.key,
 	}
 
 	return echojwt.WithConfig(middlewareConfig)
+}
+
+func (tp *TokenProvider) GetAuth(c echo.Context) *domain.Token {
+	auth := c.Get("user").(*jwt.Token)
+	return auth.Claims.(*domain.Token)
 }

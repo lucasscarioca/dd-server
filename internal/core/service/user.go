@@ -44,7 +44,7 @@ func (us *UserService) Update(user *domain.User) (*domain.SafeUser, error) {
 	}
 
 	emptyData := user.Name == "" && user.Avatar == "" && user.Email == "" && user.Configs == nil
-	sameData := existingUser.Name == user.Name && existingUser.Avatar == user.Avatar && existingUser.Email == user.Email && existingUser.Configs == user.Configs
+	sameData := existingUser.Name == user.Name && existingUser.Avatar == user.Avatar && existingUser.Email == user.Email
 	if emptyData || sameData {
 		return nil, port.ErrNoUpdatedData
 	}

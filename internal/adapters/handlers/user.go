@@ -9,12 +9,14 @@ import (
 )
 
 type UserHandler struct {
-	svc port.UserService
+	svc   port.UserService
+	token port.TokenProvider
 }
 
-func NewUserHandler(svc port.UserService) *UserHandler {
+func NewUserHandler(svc port.UserService, token port.TokenProvider) *UserHandler {
 	return &UserHandler{
 		svc,
+		token,
 	}
 }
 
@@ -61,12 +63,24 @@ func (uh *UserHandler) Find(c echo.Context) error {
 	})
 }
 
+func (uh *UserHandler) Profile(c echo.Context) error {
+	auth := uh.token.GetAuth(c)
+
+	user, err := uh.svc.Find(auth.ID)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"user": user,
+	})
+}
+
 type updateRequest struct {
-	ID      uint64 `param:"id"`
-	Name    string `json:"name,omitempty"`
-	Avatar  string `json:"avatar,omitempty"`
-	Email   string `json:"email,omitempty"`
-	Configs any    `json:"configs,omitempty"`
+	Name    string         `json:"name,omitempty"`
+	Avatar  string         `json:"avatar,omitempty"`
+	Email   string         `json:"email,omitempty"`
+	Configs map[string]any `json:"configs,omitempty"`
 }
 
 func (uh *UserHandler) Update(c echo.Context) error {
@@ -76,8 +90,10 @@ func (uh *UserHandler) Update(c echo.Context) error {
 		return validationError(c, err)
 	}
 
+	auth := uh.token.GetAuth(c)
+
 	newUser := domain.User{
-		ID:      req.ID,
+		ID:      auth.ID,
 		Name:    req.Name,
 		Avatar:  req.Avatar,
 		Email:   req.Email,
@@ -86,7 +102,7 @@ func (uh *UserHandler) Update(c echo.Context) error {
 
 	user, err := uh.svc.Update(&newUser)
 	if err != nil {
-		handleError(c, err)
+		return handleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -94,18 +110,10 @@ func (uh *UserHandler) Update(c echo.Context) error {
 	})
 }
 
-type deleteRequest struct {
-	ID uint64 `param:"id"`
-}
-
 func (uh *UserHandler) Delete(c echo.Context) error {
-	var req deleteRequest
-	err := c.Bind(&req)
-	if err != nil {
-		return err
-	}
+	auth := uh.token.GetAuth(c)
 
-	err = uh.svc.Delete(req.ID)
+	err := uh.svc.Delete(auth.ID)
 	if err != nil {
 		return handleError(c, err)
 	}

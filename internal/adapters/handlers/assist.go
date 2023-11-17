@@ -8,37 +8,90 @@ import (
 )
 
 type AssistHandler struct {
-	svc port.AssistService
+	svc   port.AssistService
+	token port.TokenProvider
 }
 
-func NewAssistHandler(svc port.AssistService) *AssistHandler {
+func NewAssistHandler(svc port.AssistService, token port.TokenProvider) *AssistHandler {
 	return &AssistHandler{
 		svc,
+		token,
 	}
 }
 
-type createAssistRequest struct {
-	ID         uint64 `param:"id"`
-	AssistedID uint64 `json:"assistedId"`
+type linkRequest struct {
+	LinkID uint64 `param:"id"`
 }
 
-func (ah *AssistHandler) Create(c echo.Context) error {
-	var req createAssistRequest
+func (ah *AssistHandler) CreateAssistedLink(c echo.Context) error {
+	var req linkRequest
 	err := c.Bind(&req)
 	if err != nil {
 		return validationError(c, err)
 	}
 
-	err = ah.svc.Create(req.ID, req.AssistedID)
+	auth := ah.token.GetAuth(c)
+
+	err = ah.svc.Create(auth.ID, req.LinkID)
 	if err != nil {
-		handleError(c, err)
+		return handleError(c, err)
 	}
 
 	return c.NoContent(http.StatusCreated)
 }
 
+func (ah *AssistHandler) CreateAssistantLink(c echo.Context) error {
+	var req linkRequest
+	err := c.Bind(&req)
+	if err != nil {
+		return validationError(c, err)
+	}
+
+	auth := ah.token.GetAuth(c)
+
+	err = ah.svc.Create(req.LinkID, auth.ID)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusCreated)
+}
+
+func (ah *AssistHandler) DeleteAssistedLink(c echo.Context) error {
+	var req linkRequest
+	err := c.Bind(&req)
+	if err != nil {
+		return validationError(c, err)
+	}
+
+	auth := ah.token.GetAuth(c)
+
+	err = ah.svc.Delete(auth.ID, req.LinkID)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AssistHandler) DeleteAssistantLink(c echo.Context) error {
+	var req linkRequest
+	err := c.Bind(&req)
+	if err != nil {
+		return validationError(c, err)
+	}
+
+	auth := ah.token.GetAuth(c)
+
+	err = ah.svc.Delete(req.LinkID, auth.ID)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 type listAssistRequest struct {
-	ID    uint64 `param:"id"`
 	Skip  uint64 `query:"skip"`
 	Limit uint64 `query:"limit"`
 }
@@ -50,7 +103,9 @@ func (ah *AssistHandler) ListAssistants(c echo.Context) error {
 		return err
 	}
 
-	assistants, err := ah.svc.ListAssistants(req.ID, req.Skip, req.Limit)
+	auth := ah.token.GetAuth(c)
+
+	assistants, err := ah.svc.ListAssistants(auth.ID, req.Skip, req.Limit)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -67,7 +122,9 @@ func (ah *AssistHandler) ListAssistedUsers(c echo.Context) error {
 		return err
 	}
 
-	assistedUsers, err := ah.svc.ListAssistedUsers(req.ID, req.Skip, req.Limit)
+	auth := ah.token.GetAuth(c)
+
+	assistedUsers, err := ah.svc.ListAssistedUsers(auth.ID, req.Skip, req.Limit)
 	if err != nil {
 		return handleError(c, err)
 	}

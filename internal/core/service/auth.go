@@ -29,7 +29,7 @@ func (as *AuthService) Login(email, password string) (string, error) {
 		return "", port.ErrInvalidCredentials
 	}
 
-	t, err := as.tp.Create(email)
+	t, err := as.tp.Create(user.ID, email)
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +42,7 @@ func (as *AuthService) Register(name, email, password string) (string, error) {
 		return "", err
 	}
 
-	_, err = as.repo.CreateUser(user)
+	createdUser, err := as.repo.CreateUser(user)
 	if err != nil {
 		if port.IsUniqueConstraintViolationError(err) {
 			return "", port.ErrConflictingData
@@ -50,7 +50,7 @@ func (as *AuthService) Register(name, email, password string) (string, error) {
 		return "", err
 	}
 
-	t, err := as.tp.Create(user.Email)
+	t, err := as.tp.Create(createdUser.ID, createdUser.Email)
 	if err != nil {
 		return "", err
 	}

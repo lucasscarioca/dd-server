@@ -57,3 +57,17 @@ func (as *AssistService) ListAssistedUsers(id, skip, limit uint64) ([]domain.Pub
 
 	return assistedUsers, nil
 }
+
+func (as *AssistService) Delete(assistantId, userId uint64) error {
+	_, err := as.repo.Find(assistantId, userId)
+	if err != nil {
+		return port.ErrDataNotFound
+	}
+
+	err = as.repo.Delete(assistantId, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

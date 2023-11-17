@@ -18,6 +18,7 @@ func NewRouter(
 	userHandler UserHandler,
 	assistHandler AssistHandler,
 	authHandler AuthHandler,
+	entryHandler EntryHandler,
 ) (*Router, error) {
 	e := echo.New()
 
@@ -44,13 +45,25 @@ func NewRouter(
 		user := v1.Group("/users", authMiddleware())
 		{
 			user.GET("/", userHandler.List)
+			user.GET("/profile", userHandler.Profile)
 			user.GET("/:id", userHandler.Find)
-			user.PUT("/:id", userHandler.Update)
-			user.DELETE("/:id", userHandler.Delete)
+			user.PUT("/", userHandler.Update)
+			user.DELETE("/", userHandler.Delete)
 
-			user.POST("/:id/new", assistHandler.Create)
-			user.GET("/:id/assistants", assistHandler.ListAssistants)
-			user.GET("/:id/assisted", assistHandler.ListAssistedUsers)
+			user.GET("/assistants", assistHandler.ListAssistants)
+			user.GET("/assisted", assistHandler.ListAssistedUsers)
+			user.POST("/:id/assisted-link", assistHandler.CreateAssistedLink)
+			user.DELETE("/:id/assisted-link", assistHandler.DeleteAssistedLink)
+			user.POST("/:id/assistant-link", assistHandler.CreateAssistantLink)
+			user.DELETE("/:id/assistant-link", assistHandler.DeleteAssistantLink)
+		}
+		entry := v1.Group("/entries", authMiddleware())
+		{
+			entry.POST("/", entryHandler.Create)
+			entry.GET("/", entryHandler.List)
+			entry.GET("/:id", entryHandler.Find)
+			entry.PUT("/:id", entryHandler.Update)
+			entry.DELETE("/:id", entryHandler.Delete)
 		}
 	}
 

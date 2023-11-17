@@ -17,7 +17,7 @@ func nullString(value string) sql.NullString {
 	}
 }
 
-func nullJson(value any) sql.NullString {
+func nullJson(value map[string]any) sql.NullString {
 	d, err := json.Marshal(value)
 	if err != nil {
 		return sql.NullString{}

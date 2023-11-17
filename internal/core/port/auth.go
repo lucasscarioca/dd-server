@@ -1,7 +1,13 @@
 package port
 
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/lucasscarioca/dinodiary/internal/core/domain"
+)
+
 type TokenProvider interface {
-	Create(email string) (string, error)
+	Create(id uint64, email string) (string, error)
+	GetAuth(c echo.Context) *domain.Token
 }
 
 type AuthService interface {

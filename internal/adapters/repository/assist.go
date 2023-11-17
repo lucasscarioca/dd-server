@@ -93,3 +93,28 @@ func (ar *AssistRepository) ListAssistedUsers(id, skip, limit uint64) ([]domain.
 
 	return assistedUsers, nil
 }
+
+func (ar *AssistRepository) Find(assistantId, userId uint64) (*domain.Assist, error) {
+	query := `SELECT * FROM assists WHERE assistant_id = $1 and user_id = $2;`
+
+	row := ar.db.QueryRow(query, assistantId, userId)
+
+	var assist domain.Assist
+	err := row.Scan(&assist.AssistantId, &assist.UserId, &assist.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &assist, nil
+}
+
+func (ar *AssistRepository) Delete(assistantId, userId uint64) error {
+	query := `DELETE FROM assists WHERE assistant_id = $1 and user_id = $2;`
+
+	_, err := ar.db.Exec(query, assistantId, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

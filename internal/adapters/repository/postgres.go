@@ -15,7 +15,7 @@ type DB struct {
 func NewDB() (*DB, error) {
 	env := os.Getenv("APP_ENV")
 	var connStr string
-	if env == "PROD" {
+	if env == "PROD" || env == "DEV" {
 		connStr = fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
 			os.Getenv("RDS_DB_HOST"),

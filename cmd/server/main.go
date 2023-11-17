@@ -55,22 +55,28 @@ func main() {
 	// User
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(userService, tokenProvider)
 
 	// Auth
 	authService := service.NewAuthService(userRepo, tokenProvider)
-	authHandler := handlers.NewAuthHandler(authService)
+	authHandler := handlers.NewAuthHandler(authService) //TODO: This should receive tokenProvider, not the service
 
 	// Assist
 	assistRepo := repository.NewAssistRepository(db)
 	assistService := service.NewAssistService(assistRepo)
-	assistHandler := handlers.NewAssistHandler(assistService)
+	assistHandler := handlers.NewAssistHandler(assistService, tokenProvider)
+
+	// Entry
+	entryRepo := repository.NewEntryRepository(db)
+	entryService := service.NewEntryService(entryRepo)
+	entryHandler := handlers.NewEntryHandler(entryService, tokenProvider)
 
 	router, err := handlers.NewRouter(
 		tokenProvider.Authenticate,
 		*userHandler,
 		*assistHandler,
 		*authHandler,
+		*entryHandler,
 	)
 	if err != nil {
 		slog.Error("Error initializing router", "error", err)
