@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/lucasscarioca/dinodiary/internal/core/domain"
@@ -21,10 +23,11 @@ func NewEntryHandler(svc port.EntryService, token port.TokenProvider) *EntryHand
 }
 
 type createEntryRequest struct {
-	Title   string         `json:"title"`
-	Content string         `json:"content"`
-	Status  string         `json:"status"`
-	Configs map[string]any `json:"configs"` //TODO: type configs according to app
+	Title     string                 `json:"title"`
+	Content   string                 `json:"content"`
+	Status    string                 `json:"status"`
+	Configs   map[string]interface{} `json:"configs"` //TODO: type configs according to app
+	CreatedAt string                 `json:"createdAt"`
 }
 
 func (eh *EntryHandler) Create(c echo.Context) error {
@@ -34,14 +37,31 @@ func (eh *EntryHandler) Create(c echo.Context) error {
 		return validationError(c, err)
 	}
 
+	parsedConfigs, err := json.Marshal(req.Configs)
+	if err != nil {
+		return validationError(c, err)
+	}
+
+	var createdAt time.Time
+	if len(req.CreatedAt) > 0 {
+		createdAt, err = time.Parse(time.DateOnly, req.CreatedAt)
+		if err != nil {
+			createdAt = time.Now()
+		}
+	} else {
+		createdAt = time.Now()
+	}
+
 	auth := eh.token.GetAuth(c)
 
 	newEntry := domain.Entry{
-		Title:   req.Title,
-		Content: req.Content,
-		UserID:  auth.ID,
-		Status:  req.Status,
-		Configs: req.Configs,
+		Title:     req.Title,
+		Content:   req.Content,
+		UserID:    auth.ID,
+		Status:    req.Status,
+		Configs:   parsedConfigs,
+		CreatedAt: createdAt,
+		UpdatedAt: time.Now(),
 	}
 	entry, err := eh.svc.Create(&newEntry)
 	if err != nil {
@@ -102,11 +122,11 @@ func (eh *EntryHandler) Find(c echo.Context) error {
 }
 
 type updateEntryRequest struct {
-	ID      uint64         `param:"id"`
-	Title   string         `json:"title,omitempty"`
-	Content string         `json:"content,omitempty"`
-	Status  string         `json:"status,omitempty"`
-	Configs map[string]any `json:"configs,omitempty"`
+	ID      uint64                 `param:"id"`
+	Title   string                 `json:"title,omitempty"`
+	Content string                 `json:"content,omitempty"`
+	Status  string                 `json:"status,omitempty"`
+	Configs map[string]interface{} `json:"configs,omitempty"`
 }
 
 func (eh *EntryHandler) Update(c echo.Context) error {
@@ -116,15 +136,21 @@ func (eh *EntryHandler) Update(c echo.Context) error {
 		return validationError(c, err)
 	}
 
+	parsedConfigs, err := json.Marshal(req.Configs)
+	if err != nil {
+		return validationError(c, err)
+	}
+
 	auth := eh.token.GetAuth(c)
 
 	newEntry := domain.Entry{
-		ID:      req.ID,
-		Title:   req.Title,
-		Content: req.Content,
-		UserID:  auth.ID,
-		Status:  req.Status,
-		Configs: req.Configs,
+		ID:        req.ID,
+		Title:     req.Title,
+		Content:   req.Content,
+		UserID:    auth.ID,
+		Status:    req.Status,
+		Configs:   parsedConfigs,
+		UpdatedAt: time.Now(),
 	}
 
 	entry, err := eh.svc.Update(&newEntry)

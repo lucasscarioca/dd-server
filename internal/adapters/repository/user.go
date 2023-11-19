@@ -105,7 +105,7 @@ func (ur *UserRepository) UpdateUser(user *domain.User) (*domain.User, error) {
 	email := nullString(user.Email)
 	password := nullString(user.Password)
 	resetToken := nullString(user.ResetToken)
-	configs := nullJson(user.Configs)
+	configs := nullBytes(user.Configs)
 
 	query := `UPDATE users SET
 	name = COALESCE($1, name),

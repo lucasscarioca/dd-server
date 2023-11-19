@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -77,15 +78,20 @@ func (uh *UserHandler) Profile(c echo.Context) error {
 }
 
 type updateRequest struct {
-	Name    string         `json:"name,omitempty"`
-	Avatar  string         `json:"avatar,omitempty"`
-	Email   string         `json:"email,omitempty"`
-	Configs map[string]any `json:"configs,omitempty"`
+	Name    string                 `json:"name,omitempty"`
+	Avatar  string                 `json:"avatar,omitempty"`
+	Email   string                 `json:"email,omitempty"`
+	Configs map[string]interface{} `json:"configs,omitempty"`
 }
 
 func (uh *UserHandler) Update(c echo.Context) error {
 	var req updateRequest
 	err := c.Bind(&req)
+	if err != nil {
+		return validationError(c, err)
+	}
+
+	parsedConfigs, err := json.Marshal(req.Configs)
 	if err != nil {
 		return validationError(c, err)
 	}
@@ -97,7 +103,7 @@ func (uh *UserHandler) Update(c echo.Context) error {
 		Name:    req.Name,
 		Avatar:  req.Avatar,
 		Email:   req.Email,
-		Configs: req.Configs,
+		Configs: parsedConfigs,
 	}
 
 	user, err := uh.svc.Update(&newUser)

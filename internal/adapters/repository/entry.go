@@ -18,10 +18,10 @@ func NewEntryRepository(db *DB) *EntryRepository {
 
 func (er *EntryRepository) Create(entry *domain.Entry) (*domain.Entry, error) {
 	query := `INSERT INTO entries
-	(title, content, user_id, status, configs) VALUES ($1, $2, $3, $4, $5)
+	(title, content, user_id, status, configs) VALUES ($1, $2, $3, $4, $5, $6, $7)
 	RETURNING *;`
 
-	row := er.db.QueryRow(query, entry.Title, entry.Content, entry.UserID, entry.Status, entry.Configs)
+	row := er.db.QueryRow(query, entry.Title, entry.Content, entry.UserID, entry.Status, entry.Configs, entry.CreatedAt, entry.UpdatedAt)
 
 	var createdEntry domain.Entry
 	err := row.Scan(&createdEntry.ID, &createdEntry.Title, &createdEntry.Content, &createdEntry.UserID, &createdEntry.Status, &createdEntry.CreatedAt, &createdEntry.UpdatedAt)
@@ -100,15 +100,15 @@ func (er *EntryRepository) Update(entry *domain.Entry) (*domain.Entry, error) {
 	title := nullString(entry.Title)
 	content := nullString(entry.Content)
 	status := nullString(entry.Status)
-	configs := nullJson(entry.Configs)
+	configs := nullBytes(entry.Configs)
 
 	query := `UPDATE entries SET
 	title = COALESCE($1, title),
 	content = COALESCE($2, content),
 	status = COALESCE($3, status),
 	configs = COALESCE($4, configs),
-	updated_at = NOW()
-	WHERE id = $5 AND user_id = $6
+	updated_at = $5
+	WHERE id = $6 AND user_id = $7
 	RETURNING *;`
 
 	err := er.db.QueryRow(
@@ -117,6 +117,7 @@ func (er *EntryRepository) Update(entry *domain.Entry) (*domain.Entry, error) {
 		content,
 		status,
 		configs,
+		entry.UpdatedAt,
 		entry.ID,
 		entry.UserID,
 	).Scan(
