@@ -15,3 +15,13 @@
 [X] List assisted users
 [X] Validate authed user actions
 [X] Configs JSON adjustments
+[] Write Tests
+
+## Tests
+
+[] Test CRUD users
+[] Test CRUD assist
+[] Test CRUD entries
+[] Test Delete user that has entries
+[] Test user configs json update
+[] Test entry configs json update

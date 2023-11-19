@@ -144,10 +144,15 @@ func (ur *UserRepository) UpdateUser(user *domain.User) (*domain.User, error) {
 }
 
 func (ur *UserRepository) DeleteUser(id uint64) error {
-	query := `DELETE FROM users
-	WHERE id = $1;`
+	assistQuery := `DELETE FROM assists WHERE user_id = $1 OR assistant_id = $1;`
+	query := `DELETE FROM users WHERE id = $1;`
 
-	_, err := ur.db.Exec(query, id)
+	_, err := ur.db.Exec(assistQuery, id)
+	if err != nil {
+		return err
+	}
+
+	_, err = ur.db.Exec(query, id)
 	if err != nil {
 		return err
 	}
