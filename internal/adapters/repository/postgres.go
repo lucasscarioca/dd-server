@@ -13,18 +13,9 @@ type DB struct {
 }
 
 func NewDB() (*DB, error) {
-	env := os.Getenv("APP_ENV")
+	dbEnv := os.Getenv("DB_ENV")
 	var connStr string
-	if env == "PROD" || env == "DEV" {
-		connStr = fmt.Sprintf(
-			"host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
-			os.Getenv("RDS_DB_HOST"),
-			os.Getenv("RDS_DB_PORT"),
-			os.Getenv("RDS_DB_USERNAME"),
-			os.Getenv("RDS_DB_PASSWORD"),
-			os.Getenv("RDS_DB_NAME"),
-		)
-	} else {
+	if dbEnv == "DEV" {
 		connStr = fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			os.Getenv("DB_HOST"),
@@ -32,6 +23,15 @@ func NewDB() (*DB, error) {
 			os.Getenv("DB_USERNAME"),
 			os.Getenv("DB_PASSWORD"),
 			os.Getenv("DB_NAME"),
+		)
+	} else {
+		connStr = fmt.Sprintf(
+			"host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
+			os.Getenv("RDS_DB_HOST"),
+			os.Getenv("RDS_DB_PORT"),
+			os.Getenv("RDS_DB_USERNAME"),
+			os.Getenv("RDS_DB_PASSWORD"),
+			os.Getenv("RDS_DB_NAME"),
 		)
 	}
 	db, err := sql.Open("postgres", connStr)
