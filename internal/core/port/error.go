@@ -12,6 +12,7 @@ var (
 	ErrDataNotFound       = errors.New("data not found")
 	ErrInvalidToken       = errors.New("access token is invalid")
 	ErrExpiredToken       = errors.New("access token has expired")
+	ErrInvalidDate        = errors.New("invalid date")
 )
 
 func IsUniqueConstraintViolationError(err error) bool {

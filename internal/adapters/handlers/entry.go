@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/lucasscarioca/dinodiary/internal/core/domain"
@@ -35,9 +34,12 @@ func (eh *EntryHandler) Create(c echo.Context) error {
 		return validationError(c, err)
 	}
 
+	auth := eh.token.GetAuth(c)
+
 	newEntry := domain.Entry{
 		Title:   req.Title,
 		Content: req.Content,
+		UserID:  auth.ID,
 		Status:  req.Status,
 		Configs: req.Configs,
 	}
@@ -64,14 +66,9 @@ func (eh *EntryHandler) List(c echo.Context) error {
 		return validationError(c, err)
 	}
 
-	parsedDate, err := time.Parse(time.DateOnly, req.Date)
-	if err != nil {
-		return validationError(c, err)
-	}
-
 	auth := eh.token.GetAuth(c)
 
-	entries, err := eh.svc.List(auth.ID, req.Skip, req.Limit, parsedDate)
+	entries, err := eh.svc.List(auth.ID, req.Skip, req.Limit, req.Date)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -92,7 +89,9 @@ func (eh *EntryHandler) Find(c echo.Context) error {
 		return validationError(c, err)
 	}
 
-	entry, err := eh.svc.Find(req.ID)
+	auth := eh.token.GetAuth(c)
+
+	entry, err := eh.svc.Find(auth.ID, req.ID)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -117,10 +116,13 @@ func (eh *EntryHandler) Update(c echo.Context) error {
 		return validationError(c, err)
 	}
 
+	auth := eh.token.GetAuth(c)
+
 	newEntry := domain.Entry{
 		ID:      req.ID,
 		Title:   req.Title,
 		Content: req.Content,
+		UserID:  auth.ID,
 		Status:  req.Status,
 		Configs: req.Configs,
 	}
@@ -146,7 +148,9 @@ func (eh *EntryHandler) Delete(c echo.Context) error {
 		return validationError(c, err)
 	}
 
-	err = eh.svc.Delete(req.ID)
+	auth := eh.token.GetAuth(c)
+
+	err = eh.svc.Delete(auth.ID, req.ID)
 	if err != nil {
 		return handleError(c, err)
 	}

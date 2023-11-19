@@ -14,6 +14,7 @@ var errorStatusMap = map[error]int{
 	port.ErrNoUpdatedData:      http.StatusBadRequest,
 	port.ErrInvalidToken:       http.StatusUnauthorized,
 	port.ErrExpiredToken:       http.StatusUnauthorized,
+	port.ErrInvalidDate:        http.StatusBadRequest,
 }
 
 type errorResponse struct {
