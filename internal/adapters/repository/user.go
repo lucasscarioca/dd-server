@@ -105,7 +105,7 @@ func (ur *UserRepository) UpdateUser(user *domain.User) (*domain.User, error) {
 	email := nullString(user.Email)
 	password := nullString(user.Password)
 	resetToken := nullString(user.ResetToken)
-	configs := nullBytes(user.Configs)
+	configs := user.Configs
 
 	query := `UPDATE users SET
 	name = COALESCE($1, name),
@@ -145,9 +145,15 @@ func (ur *UserRepository) UpdateUser(user *domain.User) (*domain.User, error) {
 
 func (ur *UserRepository) DeleteUser(id uint64) error {
 	assistQuery := `DELETE FROM assists WHERE user_id = $1 OR assistant_id = $1;`
+	entriesQuery := `DELETE FROM entries WHERE user_id = $1;`
 	query := `DELETE FROM users WHERE id = $1;`
 
 	_, err := ur.db.Exec(assistQuery, id)
+	if err != nil {
+		return err
+	}
+
+	_, err = ur.db.Query(entriesQuery, id)
 	if err != nil {
 		return err
 	}

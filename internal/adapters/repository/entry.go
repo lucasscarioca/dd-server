@@ -18,13 +18,13 @@ func NewEntryRepository(db *DB) *EntryRepository {
 
 func (er *EntryRepository) Create(entry *domain.Entry) (*domain.Entry, error) {
 	query := `INSERT INTO entries
-	(title, content, user_id, status, configs) VALUES ($1, $2, $3, $4, $5, $6, $7)
+	(title, content, user_id, status, configs, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)
 	RETURNING *;`
 
 	row := er.db.QueryRow(query, entry.Title, entry.Content, entry.UserID, entry.Status, entry.Configs, entry.CreatedAt, entry.UpdatedAt)
 
 	var createdEntry domain.Entry
-	err := row.Scan(&createdEntry.ID, &createdEntry.Title, &createdEntry.Content, &createdEntry.UserID, &createdEntry.Status, &createdEntry.CreatedAt, &createdEntry.UpdatedAt)
+	err := row.Scan(&createdEntry.ID, &createdEntry.Title, &createdEntry.Content, &createdEntry.UserID, &createdEntry.Status, &createdEntry.Configs, &createdEntry.CreatedAt, &createdEntry.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (er *EntryRepository) Update(entry *domain.Entry) (*domain.Entry, error) {
 	title := nullString(entry.Title)
 	content := nullString(entry.Content)
 	status := nullString(entry.Status)
-	configs := nullBytes(entry.Configs)
+	configs := entry.Configs
 
 	query := `UPDATE entries SET
 	title = COALESCE($1, title),

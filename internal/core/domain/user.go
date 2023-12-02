@@ -39,22 +39,27 @@ func NewUser(name, email, password string) (*User, error) {
 }
 
 type SafeUser struct {
-	ID         uint64    `json:"id"`
-	Name       string    `json:"name"`
-	Avatar     string    `json:"avatar"`
-	Email      string    `json:"email"`
-	Configs    []byte    `json:"configs"`
-	ResetToken string    `json:"resetToken"`
-	CreatedAt  time.Time `json:"createdAt"`
+	ID         uint64                 `json:"id"`
+	Name       string                 `json:"name"`
+	Avatar     string                 `json:"avatar"`
+	Email      string                 `json:"email"`
+	Configs    map[string]interface{} `json:"configs"`
+	ResetToken string                 `json:"resetToken"`
+	CreatedAt  time.Time              `json:"createdAt"`
 }
 
 func (u *User) Safe() *SafeUser {
+	var parsedConfigs map[string]interface{}
+	if err := json.Unmarshal(u.Configs, &parsedConfigs); err != nil {
+		parsedConfigs = map[string]interface{}{}
+	}
+
 	return &SafeUser{
 		ID:         u.ID,
 		Name:       u.Name,
 		Avatar:     u.Avatar,
 		Email:      u.Email,
-		Configs:    u.Configs,
+		Configs:    parsedConfigs,
 		ResetToken: u.ResetToken,
 		CreatedAt:  u.CreatedAt,
 	}

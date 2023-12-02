@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/lucasscarioca/dinodiary/internal/core/domain"
 	"github.com/lucasscarioca/dinodiary/internal/core/port"
+	"github.com/lucasscarioca/dinodiary/internal/core/utils"
 )
 
 type UserService struct {
@@ -21,8 +22,12 @@ func (us *UserService) List(skip, limit uint64) ([]domain.PubUser, error) {
 	}
 
 	users, err := us.repo.ListUsers(skip, limit)
-	if err != nil || users == nil {
+	if err != nil {
 		return nil, port.ErrDataNotFound
+	}
+
+	if users == nil {
+		return []domain.PubUser{}, nil
 	}
 
 	return users, nil
@@ -47,6 +52,10 @@ func (us *UserService) Update(user *domain.User) (*domain.SafeUser, error) {
 	sameData := existingUser.Name == user.Name && existingUser.Avatar == user.Avatar && existingUser.Email == user.Email
 	if emptyData || sameData {
 		return nil, port.ErrNoUpdatedData
+	}
+
+	if utils.EmptyConfigs(user.Configs) {
+		user.Configs = existingUser.Configs
 	}
 
 	newUser, err := us.repo.UpdateUser(user)

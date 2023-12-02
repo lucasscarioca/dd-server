@@ -16,34 +16,6 @@ func nullString(value string) sql.NullString {
 	}
 }
 
-// nullBytes converts a byte array to a sql.NullByte array for empty []byte check
-func nullBytes(value []byte) []sql.NullByte {
-	if value == nil {
-		return []sql.NullByte{}
-	}
-
-	var data []sql.NullByte
-	for _, b := range value {
-		data = append(data, sql.NullByte{
-			Byte:  b,
-			Valid: true,
-		})
-	}
-	return data
-}
-
-// func nullJson(value map[string]interface{}) sql.NullString {
-// 	d, err := json.Marshal(value)
-// 	if err != nil {
-// 		return sql.NullString{}
-// 	}
-
-// 	return sql.NullString{
-// 		String: string(d),
-// 		Valid:  true,
-// 	}
-// }
-
 // // nullUint64 converts an uint64 to sql.NullInt64 for empty uint64 check
 // func nullUint64(value uint64) sql.NullInt64 {
 // 	if value == 0 {

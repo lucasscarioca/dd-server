@@ -5,6 +5,7 @@ import (
 
 	"github.com/lucasscarioca/dinodiary/internal/core/domain"
 	"github.com/lucasscarioca/dinodiary/internal/core/port"
+	"github.com/lucasscarioca/dinodiary/internal/core/utils"
 )
 
 type EntryService struct {
@@ -17,7 +18,7 @@ func NewEntryService(repo port.EntryRepository) *EntryService {
 	}
 }
 
-func (es *EntryService) Create(entry *domain.Entry) (*domain.Entry, error) {
+func (es *EntryService) Create(entry *domain.Entry) (*domain.ParsedEntry, error) {
 	createdEntry, err := es.repo.Create(entry)
 	if err != nil {
 		if port.IsUniqueConstraintViolationError(err) {
@@ -26,10 +27,10 @@ func (es *EntryService) Create(entry *domain.Entry) (*domain.Entry, error) {
 		return nil, err
 	}
 
-	return createdEntry, nil
+	return createdEntry.Parse(), nil
 }
 
-func (es *EntryService) List(userId, skip, limit uint64, date string) ([]domain.Entry, error) {
+func (es *EntryService) List(userId, skip, limit uint64, date string) ([]domain.ParsedEntry, error) {
 	if limit == 0 {
 		limit = 10
 	}
@@ -42,23 +43,27 @@ func (es *EntryService) List(userId, skip, limit uint64, date string) ([]domain.
 	}
 
 	entries, err := es.repo.List(userId, skip, limit, date)
-	if err != nil || entries == nil {
+	if err != nil {
 		return nil, port.ErrDataNotFound
 	}
 
-	return entries, nil
+	if entries == nil {
+		return []domain.ParsedEntry{}, nil
+	}
+
+	return domain.ParseEntries(entries), nil
 }
 
-func (es *EntryService) Find(userId, id uint64) (*domain.Entry, error) {
+func (es *EntryService) Find(userId, id uint64) (*domain.ParsedEntry, error) {
 	entry, err := es.repo.Find(userId, id)
 	if err != nil {
 		return nil, port.ErrDataNotFound
 	}
 
-	return entry, nil
+	return entry.Parse(), nil
 }
 
-func (es *EntryService) Update(entry *domain.Entry) (*domain.Entry, error) {
+func (es *EntryService) Update(entry *domain.Entry) (*domain.ParsedEntry, error) {
 	existingEntry, err := es.repo.Find(entry.UserID, entry.ID)
 	if err != nil {
 		return nil, port.ErrDataNotFound
@@ -70,6 +75,10 @@ func (es *EntryService) Update(entry *domain.Entry) (*domain.Entry, error) {
 		return nil, port.ErrNoUpdatedData
 	}
 
+	if utils.EmptyConfigs(entry.Configs) {
+		entry.Configs = existingEntry.Configs
+	}
+
 	newEntry, err := es.repo.Update(entry)
 	if err != nil {
 		if port.IsUniqueConstraintViolationError(err) {
@@ -78,7 +87,7 @@ func (es *EntryService) Update(entry *domain.Entry) (*domain.Entry, error) {
 		return nil, err
 	}
 
-	return newEntry, nil
+	return newEntry.Parse(), nil
 }
 
 func (es *EntryService) Delete(userId, id uint64) error {

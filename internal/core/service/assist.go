@@ -38,8 +38,12 @@ func (as *AssistService) ListAssistants(id, skip, limit uint64) ([]domain.PubUse
 	}
 
 	assistants, err := as.repo.ListAssistants(id, skip, limit)
-	if err != nil || assistants == nil {
+	if err != nil {
 		return nil, port.ErrDataNotFound
+	}
+
+	if assistants == nil {
+		return []domain.PubUser{}, nil
 	}
 
 	return assistants, nil
@@ -51,8 +55,12 @@ func (as *AssistService) ListAssistedUsers(id, skip, limit uint64) ([]domain.Pub
 	}
 
 	assistedUsers, err := as.repo.ListAssistedUsers(id, skip, limit)
-	if err != nil || assistedUsers == nil {
+	if err != nil {
 		return nil, port.ErrDataNotFound
+	}
+
+	if assistedUsers == nil {
+		return []domain.PubUser{}, nil
 	}
 
 	return assistedUsers, nil
