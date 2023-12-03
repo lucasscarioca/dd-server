@@ -1,0 +1,2 @@
+ALTER TABLE assists
+ADD COLUMN status BOOLEAN DEFAULT false;

@@ -23,7 +23,7 @@ type linkRequest struct {
 	LinkID uint64 `param:"id"`
 }
 
-func (ah *AssistHandler) CreateAssistedLink(c echo.Context) error {
+func (ah *AssistHandler) RequestAssistedUserLink(c echo.Context) error {
 	var req linkRequest
 	err := c.Bind(&req)
 	if err != nil {
@@ -32,7 +32,7 @@ func (ah *AssistHandler) CreateAssistedLink(c echo.Context) error {
 
 	auth := ah.token.GetAuth(c)
 
-	err = ah.svc.Create(auth.ID, req.LinkID)
+	err = ah.svc.CreateRequest(auth.ID, req.LinkID, auth.ID)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -40,7 +40,7 @@ func (ah *AssistHandler) CreateAssistedLink(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
-func (ah *AssistHandler) CreateAssistantLink(c echo.Context) error {
+func (ah *AssistHandler) RequestAssistantLink(c echo.Context) error {
 	var req linkRequest
 	err := c.Bind(&req)
 	if err != nil {
@@ -49,7 +49,41 @@ func (ah *AssistHandler) CreateAssistantLink(c echo.Context) error {
 
 	auth := ah.token.GetAuth(c)
 
-	err = ah.svc.Create(req.LinkID, auth.ID)
+	err = ah.svc.CreateRequest(req.LinkID, auth.ID, auth.ID)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusCreated)
+}
+
+func (ah *AssistHandler) AcceptAssistedUserRequest(c echo.Context) error {
+	var req linkRequest
+	err := c.Bind(&req)
+	if err != nil {
+		return validationError(c, err)
+	}
+
+	auth := ah.token.GetAuth(c)
+
+	err = ah.svc.AcceptRequest(auth.ID, req.LinkID, auth.ID)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusCreated)
+}
+
+func (ah *AssistHandler) AcceptAssistantRequest(c echo.Context) error {
+	var req linkRequest
+	err := c.Bind(&req)
+	if err != nil {
+		return validationError(c, err)
+	}
+
+	auth := ah.token.GetAuth(c)
+
+	err = ah.svc.AcceptRequest(req.LinkID, auth.ID, auth.ID)
 	if err != nil {
 		return handleError(c, err)
 	}
@@ -125,6 +159,44 @@ func (ah *AssistHandler) ListAssistedUsers(c echo.Context) error {
 	auth := ah.token.GetAuth(c)
 
 	assistedUsers, err := ah.svc.ListAssistedUsers(auth.ID, req.Skip, req.Limit)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"assistedUsers": assistedUsers,
+	})
+}
+
+func (ah *AssistHandler) ListAssistantsRequests(c echo.Context) error {
+	var req listAssistRequest
+	err := c.Bind(&req)
+	if err != nil {
+		return err
+	}
+
+	auth := ah.token.GetAuth(c)
+
+	assistants, err := ah.svc.ListAssistantsRequests(auth.ID, req.Skip, req.Limit)
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"assistants": assistants,
+	})
+}
+
+func (ah *AssistHandler) ListAssistedUsersRequests(c echo.Context) error {
+	var req listAssistRequest
+	err := c.Bind(&req)
+	if err != nil {
+		return err
+	}
+
+	auth := ah.token.GetAuth(c)
+
+	assistedUsers, err := ah.svc.ListAssistedUsersRequests(auth.ID, req.Skip, req.Limit)
 	if err != nil {
 		return handleError(c, err)
 	}

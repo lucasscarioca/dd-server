@@ -50,12 +50,18 @@ func NewRouter(
 			user.PUT("/", userHandler.Update)
 			user.DELETE("/", userHandler.Delete)
 
-			user.GET("/assistants", assistHandler.ListAssistants)
+			// Assist
+			user.GET("/assisted/requests", assistHandler.ListAssistedUsersRequests)
 			user.GET("/assisted", assistHandler.ListAssistedUsers)
-			user.POST("/:id/assisted-link", assistHandler.CreateAssistedLink)
-			user.DELETE("/:id/assisted-link", assistHandler.DeleteAssistedLink)
-			user.POST("/:id/assistant-link", assistHandler.CreateAssistantLink)
-			user.DELETE("/:id/assistant-link", assistHandler.DeleteAssistantLink)
+			user.POST("/assisted/:id", assistHandler.RequestAssistedUserLink)
+			user.PUT("/assisted/:id", assistHandler.AcceptAssistedUserRequest)
+			user.DELETE("/assisted/:id", assistHandler.DeleteAssistedLink)
+
+			user.GET("/assistants/requests", assistHandler.ListAssistantsRequests)
+			user.GET("/assistants", assistHandler.ListAssistants)
+			user.POST("/assistants/:id", assistHandler.RequestAssistantLink)
+			user.PUT("/assistants/:id", assistHandler.AcceptAssistantRequest)
+			user.DELETE("/assistants/:id", assistHandler.DeleteAssistantLink)
 		}
 		entry := v1.Group("/entries", authMiddleware())
 		{

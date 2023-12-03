@@ -15,15 +15,17 @@
 [X] List assisted users
 [X] Validate authed user actions
 [X] Configs JSON adjustments
-[] CRUD Assist Link Request
+[X] CRUD Assist Link Request
+[] CRUD Dino
+[] Auth Reset and Forgot password routes (SEND EMAIL)
 [] Write Tests
 
 ## Tests
 
 [X] Test CRUD users
-[] Test CRUD assist
+[X] Test CRUD assist
 [X] Test CRUD entries
 [X] Test Delete user that has entries
 [X] Test user configs json update
 [X] Test entry configs json update
-[] Test Skip and Limit in listing actions (Assists, entries and users)
+[X] Test Skip and Limit in listing actions (Assists, entries and users)

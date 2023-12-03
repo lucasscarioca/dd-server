@@ -1,0 +1,2 @@
+ALTER TABLE assists
+ADD COLUMN created_by BIGSERIAL REFERENCES users(id);

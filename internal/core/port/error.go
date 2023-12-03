@@ -16,5 +16,9 @@ var (
 )
 
 func IsUniqueConstraintViolationError(err error) bool {
-	return strings.Contains(err.Error(), "23505")
+	return strings.Contains(err.Error(), "23505") || strings.Contains(err.Error(), "duplicate key value violates unique constraint")
+}
+
+func IsForeignKeyConstraintViolationError(err error) bool {
+	return strings.Contains(err.Error(), "violates foreign key constraint")
 }
