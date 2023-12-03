@@ -50,3 +50,5 @@ go mod tidy
 The server should start at port 3000.
 
 ## Routes
+
+[![Run in Insomnia}](https://insomnia.rest/images/run.svg)](https://insomnia.rest/run/?label=Dino%20Diary&uri=https%3A%2F%2Fgithub.com%2Flucasscarioca%2Fdd-server%2Fblob%2Fmain%2Fdocs%2FInsomnia.json)
