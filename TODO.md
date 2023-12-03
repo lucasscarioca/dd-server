@@ -16,6 +16,7 @@
 - [x] Validate authed user actions
 - [x] Configs JSON adjustments
 - [x] CRUD Assist Link Request
+- [ ] Refresh Token Auth route
 - [ ] CRUD Dino
 - [ ] Auth Reset and Forgot password routes (SEND EMAIL)
 - [ ] Write Tests
