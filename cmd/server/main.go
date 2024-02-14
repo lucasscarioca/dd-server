@@ -71,12 +71,18 @@ func main() {
 	entryService := service.NewEntryService(entryRepo)
 	entryHandler := handlers.NewEntryHandler(entryService, tokenProvider)
 
+	// Dino
+	dinoRepo := repository.NewDinoRepository(db)
+	dinoService := service.NewDinoService(dinoRepo)
+	dinoHandler := handlers.NewDinoHandler(dinoService, tokenProvider)
+
 	router, err := handlers.NewRouter(
 		tokenProvider.Authenticate,
 		*userHandler,
 		*assistHandler,
 		*authHandler,
 		*entryHandler,
+		*dinoHandler,
 	)
 	if err != nil {
 		slog.Error("Error initializing router", "error", err)

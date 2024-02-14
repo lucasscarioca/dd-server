@@ -16,8 +16,8 @@
 - [x] Validate authed user actions
 - [x] Configs JSON adjustments
 - [x] CRUD Assist Link Request
+- [x] CRUD Dino
 - [ ] Refresh Token Auth route
-- [ ] CRUD Dino
 - [ ] Auth Reset and Forgot password routes (SEND EMAIL)
 - [ ] Write Tests
 
@@ -30,3 +30,4 @@
 - [x] Test user configs json update
 - [x] Test entry configs json update
 - [x] Test Skip and Limit in listing actions (Assists, entries and users)
+- [ ] Test CRUD dino

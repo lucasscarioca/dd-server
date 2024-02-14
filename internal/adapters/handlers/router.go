@@ -19,6 +19,7 @@ func NewRouter(
 	assistHandler AssistHandler,
 	authHandler AuthHandler,
 	entryHandler EntryHandler,
+	dinoHandler DinoHandler,
 ) (*Router, error) {
 	e := echo.New()
 
@@ -70,6 +71,14 @@ func NewRouter(
 			entry.GET("/:id", entryHandler.Find)
 			entry.PUT("/:id", entryHandler.Update)
 			entry.DELETE("/:id", entryHandler.Delete)
+		}
+		dino := v1.Group("/dinos", authMiddleware())
+		{
+			dino.POST("/", dinoHandler.Create)
+			dino.GET("/", dinoHandler.List)
+			dino.GET("/:id", dinoHandler.Find)
+			dino.PUT("/:id", dinoHandler.Update)
+			dino.DELETE("/:id", dinoHandler.Delete)
 		}
 	}
 
